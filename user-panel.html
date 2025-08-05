@@ -714,7 +714,7 @@
         }
 
         .trade-btn {
-            flex: 1;
+            width: 100%;
             padding: 12px 16px;
             border: none;
             border-radius: 10px;
@@ -3324,7 +3324,7 @@
            }
            
            .mobile-trade-btn {
-               flex: 1;
+               width: 100%;
                padding: 14px;
                border: none;
                border-radius: 10px;
@@ -4848,8 +4848,8 @@
                                         </select>
                                     </div>
                                     <div class="form-group-modern">
-                                        <label>Yatırım Tutarı ($)</label>
-                                        <input type="number" id="leverageInvestment" class="form-input-modern" placeholder="0.00" min="10" step="0.01">
+                                        <label>Yatırım Tutarı (₺)</label>
+                                        <input type="number" id="leverageInvestment" class="form-input-modern" placeholder="0.00" min="350" step="1">
                                     </div>
                                 </div>
                                 
@@ -4868,36 +4868,32 @@
                                     <h5 style="color: #ffffff; margin-bottom: 16px;">İşlem Detayları</h5>
                                     <div class="stat-modern">
                                         <span class="stat-label">Pozisyon Büyüklüğü</span>
-                                        <span class="stat-value" id="positionSize">$0.00</span>
+                                        <span class="stat-value" id="positionSize">₺0.00</span>
                                     </div>
                                     <div class="stat-modern">
                                         <span class="stat-label">Gerekli Marj</span>
-                                        <span class="stat-value" id="requiredMargin">$0.00</span>
+                                        <span class="stat-value" id="requiredMargin">₺0.00</span>
                                     </div>
                                     <div class="stat-modern">
                                         <span class="stat-label">Potansiyel Kar</span>
-                                        <span class="stat-value positive" id="potentialProfit">$0.00</span>
+                                        <span class="stat-value positive" id="potentialProfit">₺0.00</span>
                                     </div>
                                     <div class="stat-modern">
                                         <span class="stat-label">Potansiyel Zarar</span>
-                                        <span class="stat-value negative" id="potentialLoss">$0.00</span>
+                                        <span class="stat-value negative" id="potentialLoss">₺0.00</span>
                                     </div>
                                     <div class="stat-modern">
                                         <span class="stat-label">Tasfiye Fiyatı</span>
-                                        <span class="stat-value" id="liquidationPrice">$0.00</span>
+                                        <span class="stat-value" id="liquidationPrice">₺0.00</span>
                                     </div>
                                 </div>
                                 
-                                <div class="buy-sell-toggle">
-                                    <button id="longLeverageBtn" class="trade-btn-modern buy active">
-                                        <i class="fas fa-arrow-up"></i>
-                                        <span>LONG AÇ</span>
-                                        <small>Yükseliş Bekliyorum</small>
+                                <div class="leverage-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                                    <button id="longLeverageBtn" class="trade-btn buy active">
+                                        <i class="fas fa-arrow-up"></i> LONG AÇ
                                     </button>
-                                    <button id="shortLeverageBtn" class="trade-btn-modern sell">
-                                        <i class="fas fa-arrow-down"></i>
-                                        <span>SHORT AÇ</span>
-                                        <small>Düşüş Bekliyorum</small>
+                                    <button id="shortLeverageBtn" class="trade-btn sell">
+                                        <i class="fas fa-arrow-down"></i> SHORT AÇ
                                     </button>
                                 </div>
                             </div>
@@ -7105,9 +7101,9 @@
                             </div>
                         </div>
                         <div class="coin-price">
-                            <div class="price">$${parseFloat(coin.current_price).toLocaleString('en-US', { 
+                            <div class="price">₺${(parseFloat(coin.current_price) * 35).toLocaleString('tr-TR', { 
                                 minimumFractionDigits: 2, 
-                                maximumFractionDigits: 8 
+                                maximumFractionDigits: 2 
                             })}</div>
                             <div class="rank">#${index + 1}</div>
                         </div>
@@ -7119,7 +7115,7 @@
                             ${parseFloat(coin.price_change_24h).toFixed(2)}%
                         </div>
                         <div class="volume-info">
-                            Piyasa Değeri: $${coin.market_cap ? (parseInt(coin.market_cap) / 1000000).toFixed(1) + 'M' : 'N/A'}
+                            Piyasa Değeri: ₺${coin.market_cap ? ((parseInt(coin.market_cap) * 35) / 1000000).toFixed(1) + 'M' : 'N/A'}
                         </div>
                     </div>
                     
@@ -7165,9 +7161,9 @@
                             </div>
                         </div>
                         <div class="mobile-coin-price">
-                            $${parseFloat(coin.current_price).toLocaleString('en-US', { 
+                            ₺${(parseFloat(coin.current_price) * 35).toLocaleString('tr-TR', { 
                                 minimumFractionDigits: 2, 
-                                maximumFractionDigits: 6 
+                                maximumFractionDigits: 2 
                             })}
                         </div>
                     </div>
@@ -7177,7 +7173,7 @@
                             ${priceChangeIcon} ${parseFloat(coin.price_change_24h).toFixed(2)}%
                         </div>
                         <div class="mobile-coin-volume">
-                            Vol: $${coin.market_cap ? (parseInt(coin.market_cap) / 1000000).toFixed(1) + 'M' : 'N/A'}
+                            Vol: ₺${coin.market_cap ? ((parseInt(coin.market_cap) * 35) / 1000000).toFixed(1) + 'M' : 'N/A'}
                         </div>
                     </div>
                     
@@ -7821,7 +7817,7 @@
             // Modal'da coin bilgilerini güncelle
             document.getElementById('leverageCoinName').textContent = coinName;
             document.getElementById('leverageCoinSymbol').textContent = coinSymbol;
-            document.getElementById('leverageCoinPrice').textContent = `$${parseFloat(currentPrice).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('leverageCoinPrice').textContent = `₺${(parseFloat(currentPrice) * 35).toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
             
             // Price change göster (random)
             const change = (Math.random() - 0.5) * 10;
@@ -7896,12 +7892,12 @@
             const potentialLoss = (investment * stopLoss) / 100;
             const liquidationPrice = coinPrice * (1 - (1 / leverage) * 0.9); // %90 margin seviyesi
             
-            // Sonuçları güncelle
-            document.getElementById('positionSize').textContent = `$${positionSize.toFixed(2)}`;
-            document.getElementById('requiredMargin').textContent = `$${requiredMargin.toFixed(2)}`;
-            document.getElementById('potentialProfit').textContent = `$${potentialProfit.toFixed(2)}`;
-            document.getElementById('potentialLoss').textContent = `$${potentialLoss.toFixed(2)}`;
-            document.getElementById('liquidationPrice').textContent = `$${liquidationPrice.toFixed(2)}`;
+            // Sonuçları güncelle (TL cinsinden)
+            document.getElementById('positionSize').textContent = `₺${(positionSize * 35).toFixed(2)}`;
+            document.getElementById('requiredMargin').textContent = `₺${(requiredMargin * 35).toFixed(2)}`;
+            document.getElementById('potentialProfit').textContent = `₺${(potentialProfit * 35).toFixed(2)}`;
+            document.getElementById('potentialLoss').textContent = `₺${(potentialLoss * 35).toFixed(2)}`;
+            document.getElementById('liquidationPrice').textContent = `₺${(liquidationPrice * 35).toFixed(2)}`;
         }
 
         function executeLeverageTrade(direction) {
@@ -7909,8 +7905,8 @@
             const leverage = document.getElementById('leverageRatio').value;
             const investment = document.getElementById('leverageInvestment').value;
             
-            if (!investment || investment < 10) {
-                alert('Minimum yatırım tutarı $10\'dur.');
+            if (!investment || investment < 350) {
+                alert('Minimum yatırım tutarı ₺350\'dir.');
                 return;
             }
             
@@ -7923,7 +7919,7 @@
             });
             
             // Başarı mesajı göster
-            alert(`${direction.toUpperCase()} pozisyonu ${leverage}x kaldıraçla açıldı!\\nYatırım: $${investment}\\nCoin: ${coin.symbol}`);
+            alert(`${direction.toUpperCase()} pozisyonu ${leverage}x kaldıraçla açıldı!\\nYatırım: ₺${investment}\\nCoin: ${coin.symbol}`);
             
             // Modal'ı kapat
             closeLeverageModal();
@@ -8018,12 +8014,12 @@
                             </span>
                         </td>
                         <td style="font-weight: 600; color: #ff9800;">${position.leverage}x</td>
-                        <td style="color: #ffffff;">$${position.investment.toFixed(2)}</td>
-                        <td style="color: #ffffff;">$${positionSize.toFixed(2)}</td>
-                        <td style="color: #8896ab;">$${position.entryPrice.toFixed(2)}</td>
-                        <td style="color: #ffffff;">$${currentPrice.toFixed(2)}</td>
+                        <td style="color: #ffffff;">₺${(position.investment * 35).toFixed(2)}</td>
+                        <td style="color: #ffffff;">₺${(positionSize * 35).toFixed(2)}</td>
+                        <td style="color: #8896ab;">₺${(position.entryPrice * 35).toFixed(2)}</td>
+                        <td style="color: #ffffff;">₺${(currentPrice * 35).toFixed(2)}</td>
                         <td style="color: ${pnl >= 0 ? '#4caf50' : '#f44336'}; font-weight: 600;">
-                            ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}
+                            ${pnl >= 0 ? '+' : ''}₺${(pnl * 35).toFixed(2)}
                         </td>
                         <td style="color: ${roe >= 0 ? '#4caf50' : '#f44336'}; font-weight: 600;">
                             ${roe >= 0 ? '+' : ''}${roe.toFixed(2)}%
