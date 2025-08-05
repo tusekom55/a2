@@ -708,8 +708,9 @@
         }
 
         .coin-actions {
-            display: flex;
-            gap: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
         }
 
         .trade-btn {
@@ -738,6 +739,12 @@
             background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
             color: #ffffff;
             box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .trade-btn.leverage {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
         }
 
         .trade-btn:hover {
@@ -2793,6 +2800,37 @@
                 font-size: 10px !important;
             }
         }
+
+        /* Leverage Modal Özel Stiller */
+        .leverage-stats {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .leverage-stats .stat-modern {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .leverage-stats .stat-modern:last-child {
+            border-bottom: none;
+        }
+
+        .trade-type-toggle .trade-type-btn.active[data-type="short"] {
+            background: #f44336;
+            color: #ffffff;
+        }
+
+        #leverageModal .modal-container {
+            transform: scale(1);
+            opacity: 1;
+        }
            
            .modal-container {
                width: 100%;
@@ -3280,8 +3318,9 @@
            }
            
            .mobile-coin-actions {
-               display: flex;
-               gap: 12px;
+               display: grid;
+               grid-template-columns: 1fr 1fr 1fr;
+               gap: 8px;
            }
            
            .mobile-trade-btn {
@@ -3307,6 +3346,11 @@
            
            .mobile-trade-btn.sell {
                background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+               color: #ffffff;
+           }
+
+           .mobile-trade-btn.leverage {
+               background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
                color: #ffffff;
            }
            
@@ -4234,12 +4278,7 @@
                         <span>Piyasalar</span>
                     </a>
                 </div>
-                <div class="nav-item">
-                    <a href="#" class="nav-link" data-section="trading">
-                        <i class="fas fa-exchange-alt"></i>
-                        <span>İşlem Yap</span>
-                    </a>
-                </div>
+
                 <div class="nav-item">
                     <a href="#" class="nav-link" data-section="recommendations">
                         <i class="fas fa-lightbulb"></i>
@@ -4454,6 +4493,60 @@
                                     </thead>
                                     <tbody id="portfolioTableBody">
                                         <!-- Portfolio items will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Kaldıraçlı Pozisyonlar -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-chart-line" style="color: #ff9800;"></i>
+                                Kaldıraçlı Pozisyonlar
+                            </h3>
+                            <button class="btn-secondary" onclick="loadLeveragePositions()" style="padding: 8px 16px;">
+                                <i class="fas fa-refresh"></i> Yenile
+                            </button>
+                        </div>
+                        
+                        <!-- Loading State -->
+                        <div id="leveragePositionsLoader" class="loading" style="display: none; text-align: center; padding: 40px;">
+                            <div class="spinner"></div>
+                            <p>Pozisyonlar yükleniyor...</p>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div id="leveragePositionsEmpty" style="text-align: center; padding: 60px 20px; color: #8b8fa3;">
+                            <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                            <h3 style="color: #ffffff; margin-bottom: 12px;">Açık Pozisyon Bulunamadı</h3>
+                            <p style="margin-bottom: 24px;">Henüz kaldıraçlı işlem açmamışsınız. Piyasalar sayfasından kaldıraçlı işlem yapabilirsiniz.</p>
+                            <button onclick="showSection('markets')" style="background: #ff9800; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">
+                                <i class="fas fa-chart-line"></i> Kaldıraçlı İşlem Yap
+                            </button>
+                        </div>
+                        
+                        <!-- Leverage Positions Table -->
+                        <div id="leveragePositionsTable" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Coin</th>
+                                            <th>Yön</th>
+                                            <th>Kaldıraç</th>
+                                            <th>Yatırım</th>
+                                            <th>Pozisyon Büyüklüğü</th>
+                                            <th>Giriş Fiyatı</th>
+                                            <th>Güncel Fiyat</th>
+                                            <th>Kar/Zarar</th>
+                                            <th>ROE %</th>
+                                            <th>İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="leveragePositionsTableBody">
+                                        <!-- Leverage positions will be inserted here -->
                                     </tbody>
                                 </table>
                             </div>
@@ -4706,301 +4799,112 @@
                         </div>
                     </div>
                 </section>
-                
-                <section class="content-section" id="trading">
-                    <div class="trading-container">
-                        <div class="trading-header">
-                            <h2 class="trading-title">Professional Trading</h2>
-                            <p class="trading-subtitle">Advanced Forex, Indices & Commodities Platform</p>
-                            
-                            <div class="trading-filters">
-                                <button class="filter-btn active" data-category="all">All Markets</button>
-                                <button class="filter-btn" data-category="major">Major Pairs</button>
-                                <button class="filter-btn" data-category="minor">Minor Pairs</button>
-                                <button class="filter-btn" data-category="indices">Indices</button>
-                                <button class="filter-btn" data-category="commodities">Commodities</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Trading Workspace -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; height: 600px;">
-                            <!-- Sol Panel: Market Watch -->
-                            <div class="trading-panel" style="border-radius: 0; margin: 0; border-right: 1px solid rgba(255, 255, 255, 0.1);">
-                                <div class="panel-header">
-                                    <h3 class="panel-title">Market Watch</h3>
-                                    <p class="panel-subtitle">Real-time quotes and spreads</p>
-                                </div>
-                                
-                                <div id="forexPairsContainer" style="height: 480px; overflow-y: auto;">
-                                    <div class="loading" id="forexLoader" style="margin: 60px 0;">
-                                        <div class="spinner"></div>
-                                        Loading market data...
-                                    </div>
-                                    <div id="forexPairsList" style="display: none;"></div>
-                                </div>
-                            </div>
-                            
-                            <!-- Sağ Panel: Trading Terminal -->
-                            <div class="trading-panel" style="border-radius: 0; margin: 0;">
-                                <div class="panel-header">
-                                    <h3 class="panel-title">Trading Terminal</h3>
-                                    <div id="selectedPairInfo" class="panel-subtitle">
-                                        Select an instrument to start trading
-                                    </div>
-                                </div>
-                                
-                                <div style="padding: 24px; height: 480px; overflow-y: auto;">
-                                    <div id="tradingForm" style="display: none;">
-                                        <!-- Direction Selection -->
-                                        <div class="trade-direction-container">
-                                            <button class="trade-direction-btn active" id="longBtn" data-direction="long">
-                                                <i class="fas fa-arrow-up"></i>
-                                                <div style="margin-top: 4px;">BUY / LONG</div>
-                                            </button>
-                                            <button class="trade-direction-btn" id="shortBtn" data-direction="short">
-                                                <i class="fas fa-arrow-down"></i>
-                                                <div style="margin-top: 4px;">SELL / SHORT</div>
-                                            </button>
-                                        </div>
-                                        
-                                        <!-- Trading Parameters -->
-                                        <div class="trading-form-group">
-                                            <label class="trading-label">Volume (Lots)</label>
-                                            <select id="lotSize" class="trading-select">
-                                                <option value="0.01">0.01 (Micro Lot)</option>
-                                                <option value="0.1">0.1 (Mini Lot)</option>
-                                                <option value="1.0">1.0 (Standard Lot)</option>
-                                                <option value="5.0">5.0 (Large Lot)</option>
-                                                <option value="10.0">10.0 (Institutional)</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <div class="trading-form-group">
-                                            <label class="trading-label">Leverage Ratio</label>
-                                            <select id="leverageRatio" class="trading-select">
-                                                <option value="10">1:10 (Conservative)</option>
-                                                <option value="50">1:50 (Moderate)</option>
-                                                <option value="100" selected>1:100 (Standard)</option>
-                                                <option value="200">1:200 (Aggressive)</option>
-                                                <option value="500">1:500 (Professional)</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <!-- Risk Management -->
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                                            <div class="trading-form-group">
-                                                <label class="trading-label">Stop Loss</label>
-                                                <input type="number" id="stopLoss" class="trading-input" placeholder="0.00000" step="0.00001">
-                                            </div>
-                                            <div class="trading-form-group">
-                                                <label class="trading-label">Take Profit</label>
-                                                <input type="number" id="takeProfit" class="trading-input" placeholder="0.00000" step="0.00001">
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Trade Calculation -->
-                                        <div class="trade-calculation-panel">
-                                            <div class="calculation-row">
-                                                <span class="calculation-label">Required Margin</span>
-                                                <span class="calculation-value" id="requiredMargin">$0.00</span>
-                                            </div>
-                                            <div class="calculation-row">
-                                                <span class="calculation-label">Pip Value</span>
-                                                <span class="calculation-value" id="pipValue">$0.00</span>
-                                            </div>
-                                            <div class="calculation-row">
-                                                <span class="calculation-label">Spread</span>
-                                                <span class="calculation-value negative" id="spreadValue">0.0 pips</span>
-                                            </div>
-                                            <div class="calculation-row">
-                                                <span class="calculation-label">Contract Size</span>
-                                                <span class="calculation-value" id="contractSize">100,000</span>
-                                            </div>
-                                        </div>
-                                        
-                                                                        <!-- Execute Button -->
-                                <button class="trade-btn-modern buy" style="margin-top: 24px;">
-                                    <i class="fas fa-bolt"></i>
-                                    <span>İŞLEMİ GERÇEKLEŞTİR</span>
-                                </button>
-                                    </div>
-                                    
-                                    <!-- No Selection State -->
-                                    <div id="noSelectionMessage" class="no-selection-message">
-                                        <div class="no-selection-icon">
-                                            <i class="fas fa-chart-line"></i>
-                                        </div>
-                                        <h3 style="margin-bottom: 12px; color: #ffffff;">Ready to Trade</h3>
-                                        <p>Select an instrument from Market Watch to begin professional trading</p>
-                                        <div style="margin-top: 24px; font-size: 12px; color: #8896ab;">
-                                            <div>✓ Advanced risk management</div>
-                                            <div>✓ Real-time execution</div>
-                                            <div>✓ Professional tools</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Open Positions Panel -->
-                    <div class="trading-container" style="margin-top: 24px;">
-                        <div class="trading-header">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h3 class="trading-title" style="font-size: 18px; margin-bottom: 4px;">Open Positions</h3>
-                                    <p class="trading-subtitle">Active trades and P&L monitoring</p>
-                                </div>
-                                <button onclick="refreshPositions()" style="padding: 10px 16px; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                    <i class="fas fa-sync-alt"></i> Refresh
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div style="padding: 24px;">
-                            <div id="openPositionsContainer">
-                                <div class="loading" id="positionsLoader" style="margin: 40px 0;">
-                                    <div class="spinner"></div>
-                                    Loading positions...
-                                </div>
-                                <div id="openPositionsList" style="display: none;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
-                <!-- Trading Modal - Tamamen Yenilenmiş -->
-                <div id="tradingModal" class="trading-modal-enhanced" style="display: none;">
-                    <div class="modal-overlay" onclick="closeTradingModal()"></div>
-                    <div class="modal-container-enhanced">
-                        <!-- Header -->
-                        <div class="modal-header-enhanced">
-                            <div class="coin-info">
-                                <div class="coin-icon-container">
-                                    <i class="fab fa-bitcoin" id="modalCoinIcon"></i>
+                <!-- Kaldıraçlı İşlem Modal'ı -->
+                <div id="leverageModal" class="modern-trading-modal" style="display: none;">
+                    <div class="modal-overlay" onclick="closeLeverageModal()"></div>
+                    <div class="modal-container">
+                        <div class="modal-header-modern">
+                            <div class="header-left">
+                                <div class="coin-basic-info">
+                                    <div class="coin-icon" id="leverageCoinIcon">
+                                        <i class="fab fa-bitcoin"></i>
+                                    </div>
+                                    <div class="coin-text">
+                                        <h3 id="leverageCoinName">Bitcoin</h3>
+                                        <span id="leverageCoinSymbol">BTC</span>
+                                    </div>
                                 </div>
-                                <div class="coin-details">
-                                    <h2 id="modalCoinName">Bitcoin</h2>
-                                    <span id="modalCoinSymbol">BTC</span>
-                                </div>
-                                <div class="price-info">
-                                    <div class="current-price" id="modalCoinPrice">₺1,350,000</div>
-                                    <div class="price-change positive" id="modalCoinChange">+2.45%</div>
+                                <div class="price-display">
+                                    <div class="current-price-modern" id="leverageCoinPrice">$45,000</div>
+                                    <div class="price-change-modern positive" id="leverageCoinChange">+2.45%</div>
                                 </div>
                             </div>
-                            <button class="close-btn" onclick="closeTradingModal()">
+                            <button class="close-btn-modern" onclick="closeLeverageModal()">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                         
-                        <!-- Trading Form -->
-                        <div class="modal-body-enhanced">
-                            <!-- Direction Buttons -->
-                            <div class="direction-buttons">
-                                <button class="direction-btn buy-btn active" data-direction="buy">
-                                    <i class="fas fa-arrow-up"></i>
-                                    <span>SATIN AL</span>
-                                    <small id="buyPrice">₺1,350,000</small>
-                                </button>
-                                <button class="direction-btn sell-btn" data-direction="sell">
-                                    <i class="fas fa-arrow-down"></i>
-                                    <span>SATIŞ YAP</span>
-                                    <small id="sellPrice">₺1,348,000</small>
-                                </button>
-                            </div>
-                            
-                            <!-- Input Tabs -->
-                            <div class="input-tabs">
-                                <button class="input-tab active" data-tab="amount">Miktar</button>
-                                <button class="input-tab" data-tab="total">Toplam ₺</button>
-                            </div>
-                            
-                            <!-- Amount Input -->
-                            <div class="input-section" id="amountSection">
-                                <div class="input-group-enhanced">
-                                    <label>Alınacak/Satılacak Miktar</label>
-                                    <div class="input-with-suffix">
-                                        <input type="number" id="coinAmount" placeholder="0.00000000" step="0.00000001" min="0">
-                                        <span class="suffix" id="quantitySuffix">BTC</span>
+                        <div class="modal-content-modern">
+                            <div class="trading-form-modern">
+                                <div class="form-header">
+                                    <h4>Kaldıraçlı İşlem</h4>
+                                    <div class="trade-type-toggle">
+                                        <button class="trade-type-btn active" data-type="long">LONG</button>
+                                        <button class="trade-type-btn" data-type="short">SHORT</button>
                                     </div>
                                 </div>
-                                <div class="percentage-buttons">
-                                    <button class="percent-btn" data-percent="25">25%</button>
-                                    <button class="percent-btn" data-percent="50">50%</button>
-                                    <button class="percent-btn" data-percent="75">75%</button>
-                                    <button class="percent-btn" data-percent="100">Tümü</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Total Input -->
-                            <div class="input-section" id="totalSection" style="display: none;">
-                                <div class="input-group-enhanced">
-                                    <label>Harcanacak/Alınacak Tutar</label>
-                                    <div class="input-with-suffix">
-                                        <input type="number" id="totalAmount" placeholder="0.00" step="0.01" min="0">
-                                        <span class="suffix">₺</span>
+                                
+                                <div class="form-row">
+                                    <div class="form-group-modern">
+                                        <label>Kaldıraç Oranı</label>
+                                        <select id="leverageRatio" class="form-input-modern">
+                                            <option value="2">2x</option>
+                                            <option value="5">5x</option>
+                                            <option value="10" selected>10x</option>
+                                            <option value="20">20x</option>
+                                            <option value="50">50x</option>
+                                            <option value="100">100x</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-modern">
+                                        <label>Yatırım Tutarı ($)</label>
+                                        <input type="number" id="leverageInvestment" class="form-input-modern" placeholder="0.00" min="10" step="0.01">
                                     </div>
                                 </div>
-                                <div class="percentage-buttons">
-                                    <button class="percent-btn" data-percent="25">25%</button>
-                                    <button class="percent-btn" data-percent="50">50%</button>
-                                    <button class="percent-btn" data-percent="75">75%</button>
-                                    <button class="percent-btn" data-percent="100">Tümü</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Transaction Summary -->
-                            <div class="transaction-summary">
-                                <div class="summary-header">
-                                    <h4>İşlem Özeti</h4>
-                                </div>
-                                <div class="summary-rows">
-                                    <div class="summary-row">
-                                        <span>Coin Fiyatı:</span>
-                                        <span id="currentCoinPrice">₺1,350,000.00</span>
+                                
+                                <div class="form-row">
+                                    <div class="form-group-modern">
+                                        <label>Stop Loss (%)</label>
+                                        <input type="number" id="leverageStopLoss" class="form-input-modern" placeholder="5.00" min="1" max="90" step="0.1">
                                     </div>
-                                    <div class="summary-row">
-                                        <span>Miktar:</span>
-                                        <span id="calculatedAmount">0.00000000 BTC</span>
-                                    </div>
-                                    <div class="summary-row">
-                                        <span>İşlem Tutarı:</span>
-                                        <span id="calculatedTotal">₺0.00</span>
-                                    </div>
-                                    <div class="summary-row">
-                                        <span>Komisyon (0.1%):</span>
-                                        <span id="calculatedFee">₺0.00</span>
-                                    </div>
-                                    <div class="summary-divider"></div>
-                                    <div class="summary-row total-row">
-                                        <span>Toplam Tutar:</span>
-                                        <span id="finalTotal">₺0.00</span>
-                                    </div>
-                                    <div class="summary-row">
-                                        <span>Mevcut Bakiye:</span>
-                                        <span id="currentBalance">₺0.00</span>
-                                    </div>
-                                    <div class="summary-row">
-                                        <span>Kalan Bakiye:</span>
-                                        <span id="remainingBalance">₺0.00</span>
+                                    <div class="form-group-modern">
+                                        <label>Take Profit (%)</label>
+                                        <input type="number" id="leverageTakeProfit" class="form-input-modern" placeholder="10.00" min="1" step="0.1">
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Execute Button -->
-                            <button id="executeOrderBtn" class="execute-btn buy-order" disabled>
-                                <i class="fas fa-shopping-cart"></i>
-                                <span id="executeText">BTC Satın Al</span>
-                            </button>
-                            
-                            <!-- Balance Warning -->
-                            <div id="balanceWarning" class="balance-warning" style="display: none;">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <span>Yetersiz bakiye</span>
+                                
+                                <div class="leverage-stats">
+                                    <h5 style="color: #ffffff; margin-bottom: 16px;">İşlem Detayları</h5>
+                                    <div class="stat-modern">
+                                        <span class="stat-label">Pozisyon Büyüklüğü</span>
+                                        <span class="stat-value" id="positionSize">$0.00</span>
+                                    </div>
+                                    <div class="stat-modern">
+                                        <span class="stat-label">Gerekli Marj</span>
+                                        <span class="stat-value" id="requiredMargin">$0.00</span>
+                                    </div>
+                                    <div class="stat-modern">
+                                        <span class="stat-label">Potansiyel Kar</span>
+                                        <span class="stat-value positive" id="potentialProfit">$0.00</span>
+                                    </div>
+                                    <div class="stat-modern">
+                                        <span class="stat-label">Potansiyel Zarar</span>
+                                        <span class="stat-value negative" id="potentialLoss">$0.00</span>
+                                    </div>
+                                    <div class="stat-modern">
+                                        <span class="stat-label">Tasfiye Fiyatı</span>
+                                        <span class="stat-value" id="liquidationPrice">$0.00</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="buy-sell-toggle">
+                                    <button id="longLeverageBtn" class="trade-btn-modern buy active">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>LONG AÇ</span>
+                                        <small>Yükseliş Bekliyorum</small>
+                                    </button>
+                                    <button id="shortLeverageBtn" class="trade-btn-modern sell">
+                                        <i class="fas fa-arrow-down"></i>
+                                        <span>SHORT AÇ</span>
+                                        <small>Düşüş Bekliyorum</small>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 
                 <section class="content-section" id="recommendations">
                     <div class="section-header">
@@ -7226,6 +7130,9 @@
                         <button class="trade-btn sell" onclick="event.stopPropagation(); openTradingModal('${coin.id}', '${coin.coin_adi}', '${coin.current_price}', 'sell', '${coin.coin_kodu}')">
                             <i class="fas fa-arrow-down"></i> Satış
                         </button>
+                        <button class="trade-btn leverage" onclick="event.stopPropagation(); openLeverageModal('${coin.id}', '${coin.coin_adi}', '${coin.current_price}', '${coin.coin_kodu}')">
+                            <i class="fas fa-chart-line"></i> Kaldıraç
+                        </button>
                     </div>
                 `;
                 
@@ -7280,6 +7187,9 @@
                         </button>
                         <button class="mobile-trade-btn sell" onclick="openTradingModal('${coin.id}', '${coin.coin_adi}', '${coin.current_price}', 'sell', '${coin.coin_kodu}')">
                             <i class="fas fa-arrow-down"></i> Satış
+                        </button>
+                        <button class="mobile-trade-btn leverage" onclick="openLeverageModal('${coin.id}', '${coin.coin_adi}', '${coin.current_price}', '${coin.coin_kodu}')">
+                            <i class="fas fa-chart-line"></i> Kaldıraç
                         </button>
                     </div>
                 `;
@@ -7895,6 +7805,276 @@
             }, 1000);
         }
         
+        // Leverage Modal Fonksiyonları
+        function openLeverageModal(coinId, coinName, currentPrice, coinSymbol) {
+            console.log('🔥 LEVERAGE MODAL AÇILIYOR!', { coinId, coinName, currentPrice, coinSymbol });
+            const modal = document.getElementById('leverageModal');
+            
+            // Global değişkenlere kaydet
+            window.currentLeverageCoin = {
+                id: coinId,
+                name: coinName,
+                price: parseFloat(currentPrice),
+                symbol: coinSymbol || coinName.substring(0, 3).toUpperCase()
+            };
+            
+            // Modal'da coin bilgilerini güncelle
+            document.getElementById('leverageCoinName').textContent = coinName;
+            document.getElementById('leverageCoinSymbol').textContent = coinSymbol;
+            document.getElementById('leverageCoinPrice').textContent = `$${parseFloat(currentPrice).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            
+            // Price change göster (random)
+            const change = (Math.random() - 0.5) * 10;
+            const changeElement = document.getElementById('leverageCoinChange');
+            changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+            changeElement.className = `price-change-modern ${change >= 0 ? 'positive' : 'negative'}`;
+            
+            // Modal'ı göster
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.querySelector('.modal-container').style.transform = 'scale(1)';
+                modal.querySelector('.modal-container').style.opacity = '1';
+            }, 10);
+            
+            // Event listener'ları ekle
+            setupLeverageModalEvents();
+        }
+
+        function closeLeverageModal() {
+            const modal = document.getElementById('leverageModal');
+            const container = modal.querySelector('.modal-container');
+            
+            container.style.transform = 'scale(0.9)';
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+                window.currentLeverageCoin = null;
+            }, 300);
+        }
+
+        function setupLeverageModalEvents() {
+            // Trade type toggle
+            document.querySelectorAll('.trade-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.trade-type-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Long/Short butonlarını güncelle
+                    const isLong = this.dataset.type === 'long';
+                    document.getElementById('longLeverageBtn').classList.toggle('active', isLong);
+                    document.getElementById('shortLeverageBtn').classList.toggle('active', !isLong);
+                    
+                    calculateLeverageStats();
+                });
+            });
+            
+            // Leverage input changes
+            ['leverageRatio', 'leverageInvestment', 'leverageStopLoss', 'leverageTakeProfit'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculateLeverageStats);
+                }
+            });
+            
+            // Long/Short buttons
+            document.getElementById('longLeverageBtn').addEventListener('click', () => executeLeverageTrade('long'));
+            document.getElementById('shortLeverageBtn').addEventListener('click', () => executeLeverageTrade('short'));
+        }
+
+        function calculateLeverageStats() {
+            const leverage = parseFloat(document.getElementById('leverageRatio').value) || 10;
+            const investment = parseFloat(document.getElementById('leverageInvestment').value) || 0;
+            const stopLoss = parseFloat(document.getElementById('leverageStopLoss').value) || 5;
+            const takeProfit = parseFloat(document.getElementById('leverageTakeProfit').value) || 10;
+            const coinPrice = window.currentLeverageCoin?.price || 0;
+            
+            // Hesaplamalar
+            const positionSize = investment * leverage;
+            const requiredMargin = investment;
+            const potentialProfit = (investment * takeProfit) / 100;
+            const potentialLoss = (investment * stopLoss) / 100;
+            const liquidationPrice = coinPrice * (1 - (1 / leverage) * 0.9); // %90 margin seviyesi
+            
+            // Sonuçları güncelle
+            document.getElementById('positionSize').textContent = `$${positionSize.toFixed(2)}`;
+            document.getElementById('requiredMargin').textContent = `$${requiredMargin.toFixed(2)}`;
+            document.getElementById('potentialProfit').textContent = `$${potentialProfit.toFixed(2)}`;
+            document.getElementById('potentialLoss').textContent = `$${potentialLoss.toFixed(2)}`;
+            document.getElementById('liquidationPrice').textContent = `$${liquidationPrice.toFixed(2)}`;
+        }
+
+        function executeLeverageTrade(direction) {
+            const coin = window.currentLeverageCoin;
+            const leverage = document.getElementById('leverageRatio').value;
+            const investment = document.getElementById('leverageInvestment').value;
+            
+            if (!investment || investment < 10) {
+                alert('Minimum yatırım tutarı $10\'dur.');
+                return;
+            }
+            
+            // Bu kısım gerçek uygulamada backend'e istek gönderilecek
+            console.log('🔥 Kaldıraçlı işlem açılıyor:', {
+                coin: coin.symbol,
+                direction: direction,
+                leverage: leverage,
+                investment: investment
+            });
+            
+            // Başarı mesajı göster
+            alert(`${direction.toUpperCase()} pozisyonu ${leverage}x kaldıraçla açıldı!\\nYatırım: $${investment}\\nCoin: ${coin.symbol}`);
+            
+            // Modal'ı kapat
+            closeLeverageModal();
+            
+            // Portfolio'ya ekle (basit simülasyon)
+            addToPortfolio(coin, direction, investment, leverage);
+        }
+
+        function addToPortfolio(coin, direction, investment, leverage) {
+            // Bu fonksiyon portfolio section'ında gösterilecek kaldıraçlı pozisyonları ekler
+            const portfolioData = JSON.parse(localStorage.getItem('leveragePositions') || '[]');
+            
+            const position = {
+                id: Date.now(),
+                coin: coin.symbol,
+                coinName: coin.name,
+                direction: direction,
+                investment: parseFloat(investment),
+                leverage: parseFloat(leverage),
+                entryPrice: coin.price,
+                currentPrice: coin.price,
+                pnl: 0,
+                timestamp: new Date().toISOString()
+            };
+            
+            portfolioData.push(position);
+            localStorage.setItem('leveragePositions', JSON.stringify(portfolioData));
+            
+            console.log('Portfolio\'ya eklendi:', position);
+        }
+
+        // Portfolio'daki kaldıraçlı pozisyonları yükle
+        function loadLeveragePositions() {
+            const loader = document.getElementById('leveragePositionsLoader');
+            const empty = document.getElementById('leveragePositionsEmpty');
+            const table = document.getElementById('leveragePositionsTable');
+            const tbody = document.getElementById('leveragePositionsTableBody');
+            
+            // Loading state göster
+            loader.style.display = 'block';
+            empty.style.display = 'none';
+            table.style.display = 'none';
+            
+            // LocalStorage'dan pozisyonları yükle
+            setTimeout(() => {
+                const positions = JSON.parse(localStorage.getItem('leveragePositions') || '[]');
+                
+                loader.style.display = 'none';
+                
+                if (positions.length === 0) {
+                    empty.style.display = 'block';
+                    return;
+                }
+                
+                // Pozisyonları tabloya ekle
+                tbody.innerHTML = '';
+                positions.forEach(position => {
+                    // Güncel fiyat simülasyonu (gerçek uygulamada API'den gelecek)
+                    const priceChange = (Math.random() - 0.5) * 0.1; // %10 range
+                    const currentPrice = position.entryPrice * (1 + priceChange);
+                    
+                    // P&L hesaplama
+                    let pnl = 0;
+                    if (position.direction === 'long') {
+                        pnl = ((currentPrice - position.entryPrice) / position.entryPrice) * position.investment * position.leverage;
+                    } else {
+                        pnl = ((position.entryPrice - currentPrice) / position.entryPrice) * position.investment * position.leverage;
+                    }
+                    
+                    const roe = (pnl / position.investment) * 100;
+                    const positionSize = position.investment * position.leverage;
+                    
+                    const row = document.createElement('tr');
+                    const pnlClass = pnl >= 0 ? 'positive' : 'negative';
+                    const directionClass = position.direction === 'long' ? 'positive' : 'negative';
+                    
+                    row.innerHTML = `
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px;">
+                                    ${position.coin.charAt(0)}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #ffffff;">${position.coinName}</div>
+                                    <div style="font-size: 12px; color: #8896ab;">${position.coin}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="leverage-direction ${directionClass}" style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                                ${position.direction}
+                            </span>
+                        </td>
+                        <td style="font-weight: 600; color: #ff9800;">${position.leverage}x</td>
+                        <td style="color: #ffffff;">$${position.investment.toFixed(2)}</td>
+                        <td style="color: #ffffff;">$${positionSize.toFixed(2)}</td>
+                        <td style="color: #8896ab;">$${position.entryPrice.toFixed(2)}</td>
+                        <td style="color: #ffffff;">$${currentPrice.toFixed(2)}</td>
+                        <td style="color: ${pnl >= 0 ? '#4caf50' : '#f44336'}; font-weight: 600;">
+                            ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}
+                        </td>
+                        <td style="color: ${roe >= 0 ? '#4caf50' : '#f44336'}; font-weight: 600;">
+                            ${roe >= 0 ? '+' : ''}${roe.toFixed(2)}%
+                        </td>
+                        <td>
+                            <button onclick="closeLeveragePosition(${position.id})" 
+                                    style="background: #f44336; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                                <i class="fas fa-times"></i> Kapat
+                            </button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+                
+                table.style.display = 'block';
+            }, 1000);
+        }
+
+        // Kaldıraçlı pozisyonu kapat
+        function closeLeveragePosition(positionId) {
+            if (!confirm('Bu pozisyonu kapatmak istediğinizden emin misiniz?')) {
+                return;
+            }
+            
+            const positions = JSON.parse(localStorage.getItem('leveragePositions') || '[]');
+            const filteredPositions = positions.filter(p => p.id !== positionId);
+            localStorage.setItem('leveragePositions', JSON.stringify(filteredPositions));
+            
+            // Pozisyonları tekrar yükle
+            loadLeveragePositions();
+            
+            console.log('Pozisyon kapatıldı:', positionId);
+        }
+
+        // Leverage direction stilleri için CSS
+        const leverageStyles = document.createElement('style');
+        leverageStyles.textContent = `
+            .leverage-direction.positive {
+                background: rgba(76, 175, 80, 0.2);
+                color: #4caf50;
+                border: 1px solid rgba(76, 175, 80, 0.3);
+            }
+            .leverage-direction.negative {
+                background: rgba(244, 67, 54, 0.2);
+                color: #f44336;
+                border: 1px solid rgba(244, 67, 54, 0.3);
+            }
+        `;
+        document.head.appendChild(leverageStyles);
+
         // Sayfa yüklendiğinde initialization yap
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Trading Dashboard başlatılıyor...');
